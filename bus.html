@@ -1,0 +1,157 @@
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    
+    <script>
+        var routes = {
+            '41':11871, 
+            '62': 11244, 
+            '202':15111, 
+            '203':15314, 
+            '205':10181, 
+            '211':11232,
+            '225':10443, 
+            '225區':16128, 
+            '226': 11245, 
+            '227':15521, 
+            '227區':15522,
+            '257':10942, 
+            '261': 10414,
+            '274':10893, 
+            '520':10424, 
+            '539':11242,
+            '617':10422,
+            '617副':17952, 
+            '638':10492, 
+            '685':10811,
+            '801':16594,
+            '803':16595,
+            '復興幹線':11833
+        };
+        
+        //https://ptx.transportdata.tw/MOTC#!/CityBus/CityBusApi_EstimatedTimeOfArrival_1
+        //https://ptx.transportdata.tw/MOTC/v2/Bus/StopOfRoute/City/NewTaipei/801?$format=JSON
+        //https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/Taipei/PassThrough/Station/1203?$format=JSON
+        function getUrl(stid, {city='Taipei', targets=[]}){
+            var filter = "";
+            if(targets.length>0){
+                filter = "&$filter="+encodeURIComponent("RouteID eq '"+routes[targets[0]]+"'");
+                if(targets.length>1){
+                    for(var i = 1; i < targets.length; i++){
+                        filter += encodeURIComponent(" or RouteID eq '"+routes[targets[i]]+"'");
+                    };
+                }
+            }
+            return "https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+city+"/PassThrough/Station/"+stid+"?$format=JSON&$select=RouteName%2CEstimateTime"+filter;
+        }
+        
+        function renderBus(element, {style='primary', note=''}){
+            if(element.StopStatus==0)
+                $("#main").append("<div class='alert alert-"+style+"' role='alert'>"+element.RouteName.Zh_tw+note+"<span class='badge bg-secondary' style='float: right;'>"+parseInt(element.EstimateTime/60)+"分</span>"+"</div>");
+        }
+        
+        function office(){
+            $.get( getUrl(1203, {targets:['41', '202', '203', '205', '257']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+            $.get( getUrl(1000237, {targets:['復興幹線', '685']}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'success'}));
+            });
+        }
+        
+        function xingtian(){
+            $.get( getUrl(1239, {targets:['225', '225區', '617', '617副']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+            $.get( getUrl(1239, {city:'NewTaipei', targets:['801', '803']}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'success'}));
+            });
+            $.get( getUrl(6705, {targets:['226']}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'info'}));
+            });
+        }
+        
+        function home(){
+            $.get( getUrl(3485, {}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+            $.get( getUrl(3485, {city:'NewTaipei', targets:['62']}), function( data ) {
+                data.forEach(element => renderBus(element, {}));
+            });
+            $.get( getUrl(3402,{}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'info'}));
+            });
+            $.get( getUrl(3402, {city:'NewTaipei'}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'info'}));
+            });
+            $.get( getUrl(3486, {}), function( data ) {
+                data.forEach(element => renderBus(element,{style:'success',note:'【家樂福】'}));
+            });
+            $.get( getUrl(3486, {city:'NewTaipei', targets:['62']}), function( data ) {
+                data.forEach(element => renderBus(element,{style:'success',note:'【家樂福】'}));
+            });
+        }
+        
+        function yeshi(){
+            $.get( getUrl(10433, {targets:['225', '225區', '226', '274', '539']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+        }
+        
+        function songjiang(){
+            $.get( getUrl(6702, {targets:['226']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+        }
+        
+        function minquan(){
+            $.get( getUrl(1000393, {targets:['211', '225', '225區', '226', '227', '227區', '261', '617', '617副']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+            $.get( getUrl(1000393, {city:'NewTaipei', targets:['520', '638', '801', '803']}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'success'}));
+            });
+        }
+        
+        function zhongshan(){
+            $.get( getUrl(1165603308, {targets:['225', '225區', '226']}), function( data ) {
+                data.forEach(element => renderBus(element,{}));
+            });
+            $.get( getUrl(1165603308, {city:'NewTaipei', targets:['801', '803']}), function( data ) {
+                data.forEach(element => renderBus(element, {style:'success'}));
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row" id="main" style="margin:30px;">
+        </div>
+        <div class="row" id="buttons" style="margin:30px;">
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');office();">公司</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');xingtian();">行天宮</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-success" onclick="$('#main').html('');home();">Home</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');yeshi();">夜市</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');minquan();">民權</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');zhongshan();">中山國小</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-primary" onclick="$('#main').html('');songjiang();">松江南京</button>
+            </div>
+        </div>
+    </div>
+</body>
